@@ -20,7 +20,6 @@ public class UmlMethod {
 
 	private final String name;
 	private final String modifier;
-	private final boolean _declaringClassIsInterface;
 	private final boolean _abstract;
 	private final boolean _static;
 	private final String returnType;
@@ -28,7 +27,6 @@ public class UmlMethod {
 
 	public UmlMethod(Method declaredMethod) {
 		this.name = declaredMethod.getName();
-		this._declaringClassIsInterface = declaredMethod.getDeclaringClass().isInterface();
 		final int modifiers = declaredMethod.getModifiers();
 		this.modifier = UmlHelper.mapModifier(modifiers);
 		this._abstract = Modifier.isAbstract(modifiers);
@@ -44,7 +42,7 @@ public class UmlMethod {
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append((_abstract && !_declaringClassIsInterface ? "{abstract}" : ""));
+		builder.append((_abstract ? "{abstract}" : ""));
 		builder.append((_static ? "{static}" : ""));
 		builder.append(modifier);
 		builder.append(name);
