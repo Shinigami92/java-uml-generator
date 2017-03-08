@@ -99,6 +99,10 @@ public class UmlClass {
 		if (_interface) {
 			// interface
 			builder.append("interface ").append(name);
+			if (_implements != null && !_implements.isEmpty()) {
+				builder.append(" extends ");
+				builder.append(_implements.stream().map(UmlClass::getName).collect(Collectors.joining(", ")));
+			}
 			builder.append(" {\n");
 		} else {
 			// class
