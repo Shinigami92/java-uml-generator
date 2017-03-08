@@ -1,11 +1,15 @@
 package de.shini.umlgen.model;
 
+import de.shini.umlgen.util.UmlHelper;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -16,17 +20,40 @@ import java.util.List;
 public class UmlClass {
 
 	private final String name;
-	private String modifier; //TODO: set modifier
-	private boolean _abstract; //TODO: set _abstract
-	private boolean _static; //TODO: set _static
-	private UmlClass _extends; //TODO: set _extends
-	private List<UmlClass> _implements; //TODO: set _implements
+	private final String modifier;
+	private final boolean _abstract;
+	private final boolean _static;
+	private final boolean _interface;
+	private final boolean _enum;
+	private final boolean _annotation;
+	private UmlClass _extends;
+	private final List<UmlClass> _implements;
 	private final List<UmlConstructor> constructors;
 	private final List<UmlField> fields;
 	private final List<UmlMethod> methods;
 
 	public UmlClass(Class<?> clazz) {
 		this.name = clazz.getSimpleName();
+
+		final int modifiers = clazz.getModifiers();
+		this.modifier = UmlHelper.mapModifier(modifiers);
+		this._abstract = Modifier.isAbstract(modifiers);
+		this._static = Modifier.isStatic(modifiers);
+
+		this._interface = clazz.isInterface();
+		this._enum = clazz.isEnum();
+		this._annotation = clazz.isAnnotation();
+
+		this._implements = new ArrayList<>();
+		final Class<?>[] interfaces = clazz.getInterfaces();
+		for (Class<?> declaredInterface : interfaces) {
+			this._implements.add(new UmlClass(declaredInterface));
+		}
+
+		Class<?> superclass = clazz.getSuperclass();
+		if (superclass != null) {
+			this._extends = new UmlClass(superclass);
+		}
 
 		// Fields
 		this.fields = new ArrayList<>();
@@ -50,10 +77,43 @@ public class UmlClass {
 		}
 	}
 
+	public String getName() {
+		return name;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("class ").append(name).append(" {\n");
+		if (_implements != null) {
+			for (UmlClass _implement : _implements) {
+				builder.append(_implement.toString());
+				builder.append("\n");
+			}
+		}
+		if (_extends != null) {
+//			builder.append(_extends.getName()).append(" <|-- ").append(name).append("\n");
+			builder.append(_extends.toString());
+			builder.append("\n");
+		}
+
+		if (_interface) {
+			// interface
+			builder.append("interface ").append(name);
+			builder.append(" {\n");
+		} else {
+			// class
+			builder.append(_abstract ? "abstract " : "");
+			builder.append("class ").append(name);
+			if (_extends != null) {
+				builder.append(" extends ").append(_extends.getName());
+			}
+			if (_implements != null && !_implements.isEmpty()) {
+				builder.append(" implements ");
+				builder.append(_implements.stream().map(UmlClass::getName).collect(Collectors.joining(", ")));
+			}
+			builder.append(" {\n");
+		}
+
 		for (UmlField field : fields) {
 			builder.append(field).append("\n");
 		}
