@@ -21,6 +21,10 @@ import java.util.stream.Collectors;
  */
 public class UmlClass {
 
+	private static <T> Predicate<T> not(Predicate<T> t) {
+		return t.negate();
+	}
+
 	private final String fullname;
 	private final String name;
 	private final String modifier;
@@ -28,19 +32,16 @@ public class UmlClass {
 	private final boolean _static;
 	private final boolean _interface;
 	private final boolean _enum;
-	private final boolean _annotation;
+	private final boolean annotation;
+	private final boolean member;
 	private UmlClass _extends;
 	private final List<UmlClass> _implements;
 	private final List<UmlConstructor> constructors;
 	private final List<UmlField> fields;
 	private final List<UmlMethod> methods;
 
-	private static <T> Predicate<T> not(Predicate<T> t) {
-		return t.negate();
-	}
-
 	public UmlClass(Class<?> clazz) {
-		this.fullname = clazz.getName();
+		this.fullname = clazz.getName().replaceAll("\\$", "_"); //TODO: Embedded classes should work
 		this.name = clazz.getSimpleName();
 
 		final int modifiers = clazz.getModifiers();
@@ -50,7 +51,8 @@ public class UmlClass {
 
 		this._interface = clazz.isInterface();
 		this._enum = clazz.isEnum();
-		this._annotation = clazz.isAnnotation();
+		this.annotation = clazz.isAnnotation();
+		this.member = clazz.isMemberClass();
 
 		this._implements = new ArrayList<>();
 		for (Class<?> declaredInterface : clazz.getInterfaces()) {
@@ -110,7 +112,11 @@ public class UmlClass {
 	}
 
 	public boolean isAnnotation() {
-		return _annotation;
+		return annotation;
+	}
+
+	public boolean isMember() {
+		return member;
 	}
 
 	public UmlClass getExtends() {
@@ -139,17 +145,22 @@ public class UmlClass {
 		return builder.append("@enduml\n").toString();
 	}
 
-	protected void generatePlantUML(final Collection<String> generatedClasses, final StringBuilder builder) {
+	public void generatePlantUML(final Collection<String> generatedClasses, final StringBuilder builder) {
+//		if (member) {
+//			generatedClasses.add(fullname);
+//			return;
+//		}
 		if (_implements != null) {
 			_implements.stream()
 					.filter(_implement -> !generatedClasses.contains(_implement.getFullname()))
+					//.filter(not(UmlClass::isMember))
 					.map(_implement -> {
 						_implement.generatePlantUML(generatedClasses, builder);
 						return _implement;
 					})
 					.forEachOrdered(_item -> builder.append("\n"));
 		}
-		if (_extends != null && !generatedClasses.contains(_extends.getFullname())) {
+		if (_extends != null && !generatedClasses.contains(_extends.getFullname())/* && !member*/) {
 			_extends.generatePlantUML(generatedClasses, builder);
 			builder.append("\n");
 		}
