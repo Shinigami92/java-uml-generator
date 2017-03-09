@@ -5,6 +5,7 @@ import de.shini.umlgen.util.UmlHelper;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +28,18 @@ public class UmlConstructor {
 		for (Parameter parameter : constructor.getParameters()) {
 			this.parameters.add(new UmlMethodParameter(parameter));
 		}
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getModifier() {
+		return modifier;
+	}
+
+	public List<UmlMethodParameter> getParameters() {
+		return Collections.unmodifiableList(parameters);
 	}
 
 	@Override

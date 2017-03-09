@@ -18,6 +18,14 @@ public class UmlMethodParameter {
 		this.type = parameter.getParameterizedType().getTypeName();
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
 	@Override
 	public String toString() {
 		return name + ": " + type;

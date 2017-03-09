@@ -16,6 +16,7 @@ public class UmlField {
 	private final String name;
 	private final String modifier;
 	private final boolean _static;
+	private final boolean synthetic;
 	private final String type;
 
 	public UmlField(Field field) {
@@ -24,11 +25,40 @@ public class UmlField {
 		final int modifiers = field.getModifiers();
 		this.modifier = UmlHelper.mapModifier(modifiers);
 		this._static = Modifier.isStatic(modifiers);
+		this.synthetic = field.isSynthetic();
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getModifier() {
+		return modifier;
+	}
+
+	public boolean isStatic() {
+		return _static;
+	}
+
+	public boolean isSynthetic() {
+		return synthetic;
+	}
+
+	public String getType() {
+		return type;
 	}
 
 	@Override
 	public String toString() {
-		return (_static ? "{static}" : "") + modifier + name + ": " + type;
+		StringBuilder builder = new StringBuilder();
+		if (_static) {
+			builder.append("{static}");
+		}
+		builder.append(modifier).append(name).append(": ").append(type);
+		if (synthetic) {
+			builder.append(" __synthetic__");
+		}
+		return builder.toString();
 	}
 
 }

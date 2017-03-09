@@ -5,6 +5,8 @@ import de.shini.umlgen.model.UmlClass;
 import java.awt.Color;
 import java.math.BigInteger;
 
+import sun.nio.ch.FileChannelImpl;
+
 /**
  *
  * @author Christopher Quadflieg (chrissi92@hotmail.de)
@@ -14,12 +16,11 @@ import java.math.BigInteger;
 public class Main {
 
 	public static void main(String[] args) throws Exception {
-		System.out.println(new UmlClass(Long.class));
-//		System.out.println(new UmlClass(Process.class));
-//		System.out.println();
-//		System.out.println(new UmlClass(BigInteger.class));
-//		System.out.println();
-//		System.out.println(new UmlClass(Color.class));
+//		System.out.println(new UmlClass(Long.class).generatePlantUML());
+//		System.out.println(new UmlClass(Process.class).generatePlantUML());
+//		System.out.println(new UmlClass(BigInteger.class).generatePlantUML());
+//		System.out.println(new UmlClass(Color.class).generatePlantUML());
+		System.out.println(new UmlClass(FileChannelImpl.class).generatePlantUML());
 	}
 
 }
